@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WishListAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bd01cbf4e6db092bc8031f0d40912718fa7fdd6c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f9f0aac7289006761f00876dd47854e49ab8ab36")]
 [assembly: System.Reflection.AssemblyProductAttribute("WishListAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WishListAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -20,7 +20,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        // SOLUÇÃO PARA O ERRO DE CICLO
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -91,15 +90,30 @@ builder.Services.AddScoped<WishService>();
 builder.Services.AddScoped<ProgressService>();
 builder.Services.AddScoped<AuthService>();
 
-// CORS
+// ✅ CORS - CONFIGURAÇÃO PARA PRODUÇÃO
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        var origins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ??
+                      new[]
+                      {
+                          "http://localhost:5173",
+                          "http://localhost:3000"
+                      };
+
+        policy.WithOrigins(origins)
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();
     });
+});
+
+// ✅ CONFIGURAR PORTA 8080 PARA O RENDER
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+    serverOptions.ListenAnyIP(int.Parse(port));
 });
 
 var app = builder.Build();
@@ -112,7 +126,8 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
-app.UseCors("AllowAll");
+// ✅ TROCAR "AllowAll" POR "AllowFrontend"
+app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

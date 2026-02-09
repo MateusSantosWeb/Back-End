@@ -113,6 +113,7 @@
 /home/mateus.santos@toshyro.local/Documentos/backend/obj/Debug/net8.0/WishListAPI.pdb
 /home/mateus.santos@toshyro.local/Documentos/backend/obj/Debug/net8.0/WishListAPI.genruntimeconfig.cache
 /home/mateus.santos@toshyro.local/Documentos/backend/obj/Debug/net8.0/ref/WishListAPI.dll
+/home/mateus.santos@toshyro.local/Documentos/backend/obj/Debug/net8.0/WishListAPI.sourcelink.json
 /home/mateus.santos@toshyro.local/Documentos/backend/obj/Debug/net8.0/staticwebassets/msbuild.WishListAPI.Microsoft.AspNetCore.StaticWebAssets.props
 /home/mateus.santos@toshyro.local/Documentos/backend/obj/Debug/net8.0/staticwebassets/msbuild.build.WishListAPI.props
 /home/mateus.santos@toshyro.local/Documentos/backend/obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.WishListAPI.props

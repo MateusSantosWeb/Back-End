@@ -9,12 +9,24 @@ using WishListAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ✅ FORÇA leitura de variáveis de ambiente
+builder.Configuration.AddEnvironmentVariables();
+
+// ✅ Lê connection string de variável de ambiente OU appsettings
+var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection") 
+    ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
+// ✅ LOG para debug
+Console.WriteLine($"[DEBUG] Connection String: {(string.IsNullOrEmpty(connectionString) ? "VAZIA!" : "OK")}");
+
+if (string.IsNullOrEmpty(connectionString))
+{
+    throw new Exception("❌ Connection string não encontrada!");
+}
+
 // Configuração do DbContext com MySQL
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
-    ));
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 // Configuração de Controllers com JSON options para evitar ciclos
 builder.Services.AddControllers()
@@ -57,8 +69,11 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Configuração do JWT
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "ChaveSecretaSuperSeguraParaOWishList2024!@#$%";
+// ✅ Lê JWT Key de variável de ambiente
+var jwtKey = Environment.GetEnvironmentVariable("Jwt__Key") 
+    ?? builder.Configuration["Jwt:Key"] 
+    ?? "ChaveSecretaSuperSeguraParaOWishList2024!@#$%";
+    
 var key = Encoding.ASCII.GetBytes(jwtKey);
 
 builder.Services.AddAuthentication(x =>
@@ -99,7 +114,8 @@ builder.Services.AddCors(options =>
                       new[]
                       {
                           "http://localhost:5173",
-                          "http://localhost:3000"
+                          "http://localhost:3000",
+                          "https://novo-2.onrender.com" // ✅ Adicione sua URL do frontend
                       };
 
         policy.WithOrigins(origins)
@@ -109,10 +125,12 @@ builder.Services.AddCors(options =>
     });
 });
 
-// ✅ CONFIGURAR PORTA 8080 PARA O RENDER
+// ✅ CONFIGURAR PORTA PARA O RENDER (usa variável PORT ou padrão 10000)
+var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
+Console.WriteLine($"[DEBUG] Porta configurada: {port}");
+
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
     serverOptions.ListenAnyIP(int.Parse(port));
 });
 
@@ -126,7 +144,10 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
-// ✅ TROCAR "AllowAll" POR "AllowFrontend"
+// ✅ Swagger em produção também (opcional, facilita testes)
+app.UseSwagger();
+app.UseSwaggerUI();
+
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();

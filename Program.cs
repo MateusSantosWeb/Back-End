@@ -110,18 +110,22 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        var origins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ??
-                      new[]
-                      {
-                          "http://localhost:5173",
-                          "http://localhost:3000",
-                          "https://novo-2.onrender.com" // ✅ Adicione sua URL do frontend
-                      };
+        var origins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>();
+        var hasOrigins = origins != null && origins.Length > 0 && origins.All(o => !string.IsNullOrWhiteSpace(o));
 
-        policy.WithOrigins(origins)
-        .AllowAnyMethod()
-        .AllowAnyHeader()
-        .AllowCredentials();
+        if (hasOrigins)
+        {
+            policy.WithOrigins(origins!)
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        }
+        else
+        {
+            policy.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        }
     });
 });
 

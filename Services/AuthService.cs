@@ -17,22 +17,32 @@ namespace WishListAPI.Services
         
         public string GenerateJwtToken(User user)
         {
+            var jwtKey = _configuration["Jwt:Key"] ?? "ChaveSecretaSuperSeguraParaOWishList2024!@#$%";
+            var jwtIssuer = _configuration["Jwt:Issuer"] ?? "WishListAPI";
+            var jwtAudience = _configuration["Jwt:Audience"] ?? "WishListUsers";
+            var expiresInHoursRaw = _configuration["Jwt:ExpiresInHours"] ?? "24";
+            
+            if (!double.TryParse(expiresInHoursRaw, out var expiresInHours))
+            {
+                expiresInHours = 24;
+            }
+            
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Nome),
-                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Name, user.Nome ?? string.Empty),
+                new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
                 new Claim(ClaimTypes.Role, user.Role.ToString())
             };
             
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             
             var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
+                issuer: jwtIssuer,
+                audience: jwtAudience,
                 claims: claims,
-                expires: DateTime.Now.AddHours(Convert.ToDouble(_configuration["Jwt:ExpiresInHours"])),
+                expires: DateTime.Now.AddHours(expiresInHours),
                 signingCredentials: creds
             );
             
